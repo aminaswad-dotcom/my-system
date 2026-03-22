@@ -7,16 +7,11 @@ import os
 with app.app_context():
     db.create_all()
     
-    # Create sample users if not exist
-    if not User.query.filter_by(username='admin').first():
-        admin = User(username='admin')
-        admin.set_password('admin')
-        db.session.add(admin)
-    
-    if not User.query.filter_by(username='user').first():
-        user = User(username='user')
-        user.set_password('user')
-        db.session.add(user)
+    # Create default user 'smc' if not exist
+    if not User.query.filter_by(username='smc').first():
+        smc_user = User(username='smc')
+        smc_user.set_password('smc12345')
+        db.session.add(smc_user)
     
     # Sample documents
     if not Document.query.first():
