@@ -6,6 +6,7 @@ from wtforms.validators import DataRequired, Length
 from werkzeug.utils import secure_filename
 from werkzeug.security import check_password_hash
 from models import db, User, Document, File
+from sqlalchemy.orm import joinedload
 from config import Config
 import os
 from datetime import datetime, date
@@ -52,16 +53,21 @@ def generate_qr(doc_id):
     os.makedirs(qr_dir, exist_ok=True)
     filename = f'qr_{doc_id}.png'
     filepath = os.path.join(qr_dir, filename)
+    doc = Document.query.options(joinedload(Document.files)).get(doc_id)
     if not os.path.exists(filepath):
         qr = QRCode(version=1, box_size=10, border=5)
-        qr_url = url_for('document', doc_id=doc_id, _external=True)
+        if doc and doc.files:
+            file_path = doc.files[0].filepath.replace('static/', '')
+            qr_url = url_for('static', filename=file_path, _external=True)
+        else:
+            qr_url = url_for('document', doc_id=doc_id, _external=True)
         qr.add_data(qr_url)
         qr.make(fit=True)
         img = qr.make_image(fill_color="black", back_color="white")
         img.save(filepath)
-    doc = Document.query.get(doc_id)
-    doc.qr_code = filename
-    db.session.commit()
+    if doc:
+        doc.qr_code = filename
+        db.session.commit()
     return filename
 
 # Routes

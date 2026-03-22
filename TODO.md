@@ -1,11 +1,8 @@
-# Task: Change default username to 'smc' and password to 'smc12345' - COMPLETED
+# TODO: Fix QR Code Scanning to Open Corresponding File Directly
 
 ## Steps:
-- [x] 1. Edited run.py to create default user 'smc' with password 'smc12345' if not exists
-- [x] 2. TODO.md created/updated for tracking
-- [ ] 3. Run `python run.py` to apply changes to database
-- [ ] 4. Test login: http://localhost:5000/login with smc/smc12345
-- [ ] 5. Run `python app.py` for production server
-
-**Next:** Execute `python run.py` then test login.
-
+- [x] 1. Edit app.py: Import joinedload, modify generate_qr to use direct first file static URL if available
+- [x] 2. Edit templates/document.html: Update QR section text to reflect direct file open
+- [ ] 3. Delete existing static/qr/*.png to force regeneration
+- [ ] 4. Restart server and test: Visit /document/<id> to regen QR, scan with phone app (should open file directly)
+- [ ] 5. Mark complete
