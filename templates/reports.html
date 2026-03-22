@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}التقارير{% endblock %}
+
+{% block head %}
+<style>
+@media print {
+    .no-print { display: none; }
+    .table { font-size: 12px; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <h2>التقارير</h2>
+    <div class="btn-group no-print" role="group">
+        <a href="{{ url_for('reports', type='daily') }}" class="btn btn-primary {% if report_type == 'daily' %}active{% endif %}">يومي</a>
+        <a href="{{ url_for('reports', type='monthly') }}" class="btn btn-primary {% if report_type == 'monthly' %}active{% endif %}">شهري</a>
+    </div>
+</div>
+
+{% if docs %}
+<div class="card no-print">
+    <div class="card-body">
+        <div class="d-flex justify-content-between">
+            <h4>تقرير {{ 'يومي' if report_type == 'daily' else 'شهري' }} - من {{ start }} إلى {{ end }}</h4>
+            <button onclick="window.print()" class="btn btn-success btn-lg">
+                <i class="fas fa-print"></i> طباعة
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>رقم</th>
+                <th>التاريخ</th>
+                <th>النوع</th>
+                <th>الجهة</th>
+                <th>الموضوع</th>
+                <th>عدد الملفات</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for doc in docs %}
+            <tr>
+                <td>{{ doc.doc_number }}</td>
+                <td>{{ doc.date.strftime('%Y-%m-%d') }}</td>
+                <td>{{ doc.doc_type }}</td>
+                <td>{{ doc.sender_receiver }}</td>
+                <td>{{ doc.subject[:60] }}...</td>
+                <td>{{ doc.files|length }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr class="table-info">
+                <th colspan="5">المجموع</th>
+                <th>{{ docs|length }} وثيقة</th>
+            </tr>
+        </tfoot>
+    </table>
+</div>
+{% else %}
+<div class="alert alert-info">
+    لا توجد وثائق في هذه الفترة
+</div>
+{% endif %}
+
+<a href="{{ url_for('dashboard') }}" class="btn btn-secondary no-print mt-3">عودة</a>
+{% endblock %}

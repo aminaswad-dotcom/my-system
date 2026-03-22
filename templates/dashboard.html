@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block title %}الرئيسية{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>قائمة الوثائق</h2>
+    <a href="{{ url_for('add_document') }}" class="btn btn-success btn-lg">
+        <i class="fas fa-plus"></i> إضافة وثيقة جديدة
+    </a>
+</div>
+
+<!-- Search and Filter -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="GET" class="row g-3">
+            <div class="col-md-3">
+                <input type="text" name="search" class="form-control" placeholder="بحث برقم، جهة، موضوع..." value="{{ search }}">
+            </div>
+            <div class="col-md-2">
+                <select name="type" class="form-select">
+                    <option value="">النوع</option>
+                    <option value="وارد" {% if doc_type == 'وارد' %}selected{% endif %}>وارد</option>
+                    <option value="صادر" {% if doc_type == 'صادر' %}selected{% endif %}>صادر</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <input type="date" name="start_date" class="form-control" value="{{ start_date }}">
+            </div>
+            <div class="col-md-2">
+                <input type="date" name="end_date" class="form-control" value="{{ end_date }}">
+            </div>
+            <div class="col-md-1">
+                <button type="submit" class="btn btn-primary w-100">فلتر</button>
+            </div>
+            <div class="col-md-1">
+                <a href="{{ url_for('dashboard') }}" class="btn btn-secondary w-100">مسح</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Documents Table -->
+<div class="card">
+    <div class="card-body">
+        {% if documents.items %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>رقم</th>
+                        <th>التاريخ</th>
+                        <th>النوع</th>
+                        <th>الجهة</th>
+                        <th>الموضوع</th>
+                        <th>الملفات</th>
+                        <th>الإجراءات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for doc in documents.items %}
+                    <tr>
+                        <td>{{ doc.doc_number }}</td>
+                        <td>{{ doc.date.strftime('%Y-%m-%d') }}</td>
+                        <td><span class="badge bg-{% if doc.doc_type == 'وارد' %}primary{% else %}success{% endif %}">{{ doc.doc_type }}</span></td>
+                        <td>{{ doc.sender_receiver }}</td>
+                        <td>{{ doc.subject[:50] }}...</td>
+                        <td>{{ doc.files|length }}</td>
+                        <td>
+                            <a href="{{ url_for('document', doc_id=doc.id) }}" class="btn btn-info btn-sm">عرض</a>
+                            <a href="{{ url_for('edit_document', doc_id=doc.id) }}" class="btn btn-warning btn-sm">تعديل</a>
+                            <a href="{{ url_for('delete_document', doc_id=doc.id) }}" class="btn btn-danger btn-sm" onclick="return confirm('تأكيد الحذف?')">حذف</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <!-- Pagination -->
+        {% if documents.has_prev or documents.has_next %}
+        <nav>
+            <ul class="pagination justify-content-center">
+                {% if documents.has_prev %}
+                <li class="page-item"><a class="page-link" href="?{{ request.args.to_dict()|urlencode }}&page={{ documents.prev_num }}">السابق</a></li>
+                {% endif %}
+                {% for page_num in documents.iter_pages() %}
+                    {% if page_num %}
+                        <li class="page-item {% if page_num == documents.page %}active{% endif %}">
+                            <a class="page-link" href="?{{ request.args.to_dict()|urlencode }}&page={{ page_num }}">{{ page_num }}</a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+                {% if documents.has_next %}
+                <li class="page-item"><a class="page-link" href="?{{ request.args.to_dict()|urlencode }}&page={{ documents.next_num }}">التالي</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+        {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+            <h4>لا توجد وثائق</h4>
+            <a href="{{ url_for('add_document') }}" class="btn btn-primary btn-lg">إضافة أول وثيقة</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

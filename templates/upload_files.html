@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}رفع ملفات للوثيقة{% endblock %}
+
+{% block content %}
+<h2>رفع ملفات إضافية للوثيقة</h2>
+<p>رقم الوثيقة: <strong>{{ doc.doc_number }}</strong></p>
+
+<form method="POST" enctype="multipart/form-data">
+    <div class="mb-3">
+        <label class="form-label">الملفات الجديدة</label>
+        <input type="file" name="files" class="form-control" multiple accept=".pdf,image/*">
+        <small>صيغ مدعومة: PDF, JPG, PNG, GIF</small>
+    </div>
+    <button type="submit" class="btn btn-success">رفع</button>
+    <a href="{{ url_for('document', doc_id=doc.id) }}" class="btn btn-secondary">عودة</a>
+</form>
+{% endblock %}

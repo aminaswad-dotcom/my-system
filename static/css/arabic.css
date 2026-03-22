@@ -1,0 +1,56 @@
+/* Custom Arabic RTL styles */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+}
+
+.btn-lg {
+    padding: 12px 24px;
+    font-size: 1.1rem;
+    border-radius: 8px;
+}
+
+.btn {
+    font-weight: 500;
+}
+
+.card {
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    border-radius: 10px;
+}
+
+.table th {
+    background-color: #e9ecef;
+    border-top: none;
+}
+
+.navbar-brand {
+    font-weight: bold;
+    font-size: 1.3rem;
+}
+
+.alert {
+    border-radius: 8px;
+    border: none;
+}
+
+.img-fluid {
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.fa-3x {
+    color: #6c757d;
+}
+
+/* Large buttons */
+.btn-lg i {
+    margin-left: 8px;
+}
+
+/* Print styles */
+@media print {
+    body { background: white !important; }
+    .no-print { display: none !important; }
+    .card { box-shadow: none !important; }
+}

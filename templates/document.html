@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block title %}{{ doc.doc_number }} - تفاصيل الوثيقة{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-start mb-4">
+    <div>
+        <h2>{{ doc.doc_number }}</h2>
+        <span class="badge bg-{% if doc.doc_type == 'وارد' %}primary{% else %}success{% endif %} fs-6">{{ doc.doc_type }}</span>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{{ url_for('edit_document', doc_id=doc.id) }}" class="btn btn-warning">
+            <i class="fas fa-edit"></i> تعديل
+        </a>
+        <a href="{{ url_for('upload_files', doc_id=doc.id) }}" class="btn btn-info">
+            <i class="fas fa-upload"></i> ملفات إضافية
+        </a>
+        <a href="{{ url_for('delete_document', doc_id=doc.id) }}" class="btn btn-danger" onclick="return confirm('تأكيد?')">
+            <i class="fas fa-trash"></i> حذف
+        </a>
+        <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">عودة</a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5>تفاصيل الوثيقة</h5>
+                <table class="table table-borderless">
+                    <tr><td>رقم الكتاب:</td><td>{{ doc.doc_number }}</td></tr>
+                    <tr><td>التاريخ:</td><td>{{ doc.date.strftime('%Y-%m-%d') }}</td></tr>
+                    <tr><td>الجهة:</td><td>{{ doc.sender_receiver }}</td></tr>
+                    <tr><td>الموضوع:</td><td>{{ doc.subject }}</td></tr>
+                    {% if doc.notes %}
+                    <tr><td>ملاحظات:</td><td>{{ doc.notes }}</td></tr>
+                    {% endif %}
+                </table>
+            </div>
+        </div>
+
+        {% if doc.files %}
+        <div class="card">
+            <div class="card-header">
+                <h5>الملفات المرفوعة ({{ doc.files|length }})</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for file in doc.files %}
+                    <div class="col-md-6 col-lg-4 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                {% if file.filename.lower().endswith(('.jpg', '.jpeg', '.png', '.gif')) %}
+                                    <img src="{{ url_for('static', filename=file.filepath.replace('static/', '')) }}" class="img-fluid mb-2" style="max-height: 200px;">
+                                {% else %}
+                                    <embed src="{{ url_for('static', filename=file.filepath.replace('static/', '')) }}" type="application/pdf" class="w-100" style="height: 200px;">
+                                {% endif %}
+                                <h6 class="card-title">{{ file.filename }}</h6>
+                                <a href="{{ url_for('download_file', file_id=file.id) }}" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-download"></i> تحميل
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="alert alert-warning">
+            لا توجد ملفات. <a href="{{ url_for('upload_files', doc_id=doc.id) }}">رفع ملفات</a>
+        </div>
+        {% endif %}
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body text-center">
+                <h5>رمز QR</h5>
+                <img src="{{ qr_path }}" class="img-fluid mb-3" style="max-width: 250px;">
+                <p class="small text-muted">يمكن مسح هذا الرمز للوصول للوثيقة</p>
+                <a href="{{ qr_path }}" download="qr_{{ doc.id }}.png" class="btn btn-outline-primary btn-sm">تحميل QR</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
