@@ -7,6 +7,7 @@ from werkzeug.utils import secure_filename
 from werkzeug.security import check_password_hash
 from models import db, User, Document, File
 from sqlalchemy.orm import joinedload
+from flask_login import current_user
 from config import Config
 import os
 from datetime import datetime, date
@@ -56,11 +57,7 @@ def generate_qr(doc_id):
     doc = Document.query.options(joinedload(Document.files)).get(doc_id)
     if not os.path.exists(filepath):
         qr = QRCode(version=1, box_size=10, border=5)
-        if doc and doc.files:
-            file_path = doc.files[0].filepath.replace('static/', '')
-            qr_url = url_for('static', filename=file_path, _external=True)
-        else:
-            qr_url = url_for('document', doc_id=doc_id, _external=True)
+        qr_url = url_for('public_document', doc_id=doc_id, _external=True)
         qr.add_data(qr_url)
         qr.make(fit=True)
         img = qr.make_image(fill_color="black", back_color="white")
@@ -150,13 +147,31 @@ def add_document():
         return redirect(url_for('dashboard'))
     return render_template('add_document.html', form=form)
 
+@app.route('/public/document/<doc_id>')
+def public_document(doc_id):
+    doc = Document.query.options(joinedload(Document.files)).get_or_404(doc_id)
+    generate_qr(doc.id)
+    qr_path = url_for('static', filename=f'qr/qr_{doc.id}.png')
+    return render_template('document.html', doc=doc, qr_path=qr_path, is_public=True)
+
 @app.route('/document/<doc_id>')
 @login_required
 def document(doc_id):
-    doc = Document.query.get_or_404(doc_id)
+    doc = Document.query.options(joinedload(Document.files)).get_or_404(doc_id)
     generate_qr(doc.id)
     qr_path = url_for('static', filename=f'qr/qr_{doc.id}.png')
-    return render_template('document.html', doc=doc, qr_path=qr_path)
+    return render_template('document.html', doc=doc, qr_path=qr_path, is_public=False)
+
+@app.route('/regen-qr/<doc_id>')
+@login_required
+def regen_qr(doc_id):
+    doc = Document.query.options(joinedload(Document.files)).get_or_404(doc_id)
+    qr_path = f"static/qr/qr_{doc_id}.png"
+    if os.path.exists(qr_path):
+        os.remove(qr_path)
+    generate_qr(doc_id)
+    flash('تم إعادة توليد رمز QR بنجاح')
+    return redirect(url_for('document', doc_id=doc_id))
 
 @app.route('/edit/<doc_id>', methods=['GET', 'POST'])
 @login_required

@@ -8,6 +8,7 @@
         <h2>{{ doc.doc_number }}</h2>
         <span class="badge bg-{% if doc.doc_type == 'وارد' %}primary{% else %}success{% endif %} fs-6">{{ doc.doc_type }}</span>
     </div>
+    {% if current_user.is_authenticated %}
     <div class="d-flex gap-2">
         <a href="{{ url_for('edit_document', doc_id=doc.id) }}" class="btn btn-warning">
             <i class="fas fa-edit"></i> تعديل
@@ -20,6 +21,10 @@
         </a>
         <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">عودة</a>
     </div>
+    {% endif %}
+    {% if not current_user.is_authenticated %}
+    <a href="javascript:history.back()" class="btn btn-secondary">عودة</a>
+    {% endif %}
 </div>
 
 <div class="row">
@@ -68,7 +73,7 @@
         </div>
         {% else %}
         <div class="alert alert-warning">
-            لا توجد ملفات. <a href="{{ url_for('upload_files', doc_id=doc.id) }}">رفع ملفات</a>
+            لا توجد ملفات. {% if current_user.is_authenticated %}<a href="{{ url_for('upload_files', doc_id=doc.id) }}">رفع ملفات</a>{% endif %}
         </div>
         {% endif %}
     </div>
@@ -78,7 +83,7 @@
             <div class="card-body text-center">
                 <h5>رمز QR</h5>
                 <img src="{{ qr_path }}" class="img-fluid mb-3" style="max-width: 250px;">
-                <p class="small text-muted">امسح هذا الرمز لفتح الملف الرئيسي مباشرة / Scan QR to open main file directly</p>
+<p class="small text-muted">امسح لعرض تفاصيل الوثيقة / Scan QR to view document details</p>
                 <a href="{{ qr_path }}" download="qr_{{ doc.id }}.png" class="btn btn-outline-primary btn-sm">تحميل QR</a>
             </div>
         </div>
