@@ -7,20 +7,24 @@
 - admin / admin
 - user / user
 
-## كيفية التشغيل
-1. في مجلد المشروع:
-   ```
+## كيفية التشغيل (محلي)
+1. ```
    pip install -r requirements.txt
    ```
 
-2. تشغيل الخادم:
-   ```
+2. ```
    python run.py
    ```
 
-3. الوصول من المتصفح:
-   - localhost:5000
-   - أو عنوان IP المحلي:5000 من الجهاز الثاني في الشبكة نفسها
+3. localhost:5000
+
+## نشر على Render
+1. Push to GitHub
+2. Connect Render.com
+3. Set Env: `BASE_URL=https://your-app.onrender.com`
+4. Procfile auto-used.
+
+QR scans use BASE_URL/public/document/{id}
 
 ## الميزات
 - تسجيل دخول آمن

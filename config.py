@@ -7,6 +7,7 @@ class Config:
     UPLOAD_FOLDER = 'static/uploads/docs'
     MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16MB max file size
     BACKUP_FOLDER = 'backups'
+    BASE_URL = os.environ.get('BASE_URL', 'http://localhost:5000')
 
     @staticmethod
     def init_folders():

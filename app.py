@@ -57,7 +57,7 @@ def generate_qr(doc_id):
     doc = Document.query.options(joinedload(Document.files)).get(doc_id)
     if not os.path.exists(filepath):
         qr = QRCode(version=1, box_size=10, border=5)
-        qr_url = url_for('public_document', doc_id=doc_id, _external=True)
+        qr_url = f"{app.config['BASE_URL']}/public/document/{doc_id}"
         qr.add_data(qr_url)
         qr.make(fit=True)
         img = qr.make_image(fill_color="black", back_color="white")
