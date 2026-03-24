@@ -173,6 +173,18 @@ def regen_qr(doc_id):
     flash('تم إعادة توليد رمز QR بنجاح')
     return redirect(url_for('document', doc_id=doc_id))
 
+@app.route('/regen-all-qr')
+@login_required
+def regen_all_qr():
+    qr_dir = 'static/qr'
+    for f in os.listdir(qr_dir):
+        if f.startswith('qr_') and f.endswith('.png'):
+            os.remove(os.path.join(qr_dir, f))
+    for doc in Document.query.all():
+        generate_qr(doc.id)
+    flash('تم إعادة توليد جميع رموز QR')
+    return redirect(url_for('dashboard'))
+
 @app.route('/edit/<doc_id>', methods=['GET', 'POST'])
 @login_required
 def edit_document(doc_id):
