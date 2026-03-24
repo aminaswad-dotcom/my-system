@@ -13,8 +13,8 @@
    ```
 
 2. ```
-   python run.py
-   ```
+   python3 run.py
+   ``` (Port 5001, or $PORT)
 
 3. localhost:5000
 

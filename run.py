@@ -1,3 +1,4 @@
+import os
 from app import app, db
 from models import User, Document, File
 from config import Config
@@ -33,4 +34,5 @@ with app.app_context():
     Config.init_folders()
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    port = int(os.environ.get('PORT', 5001))
+    app.run(host='0.0.0.0', port=port, debug=True, use_reloader=False, use_debugger=True)

@@ -141,7 +141,6 @@ def add_document():
                     file.save(filepath)
                     file_db = File(document_id=doc.id, filename=filename, filepath=filepath)
                     db.session.add(file_db)
-        generate_qr(doc.id)
         db.session.commit()
         flash('تم إضافة الوثيقة بنجاح')
         return redirect(url_for('dashboard'))
@@ -150,40 +149,19 @@ def add_document():
 @app.route('/public/document/<doc_id>')
 def public_document(doc_id):
     doc = Document.query.options(joinedload(Document.files)).get_or_404(doc_id)
-    generate_qr(doc.id)
-    qr_path = url_for('static', filename=f'qr/qr_{doc.id}.png')
+    generate_qr(doc_id)
+    qr_path = url_for('static', filename=f'qr/qr_{doc_id}.png')
     return render_template('document.html', doc=doc, qr_path=qr_path, is_public=True)
 
 @app.route('/document/<doc_id>')
 @login_required
 def document(doc_id):
     doc = Document.query.options(joinedload(Document.files)).get_or_404(doc_id)
-    generate_qr(doc.id)
-    qr_path = url_for('static', filename=f'qr/qr_{doc.id}.png')
+    generate_qr(doc_id)
+    qr_path = url_for('static', filename=f'qr/qr_{doc_id}.png')
     return render_template('document.html', doc=doc, qr_path=qr_path, is_public=False)
 
-@app.route('/regen-qr/<doc_id>')
-@login_required
-def regen_qr(doc_id):
-    doc = Document.query.options(joinedload(Document.files)).get_or_404(doc_id)
-    qr_path = f"static/qr/qr_{doc_id}.png"
-    if os.path.exists(qr_path):
-        os.remove(qr_path)
-    generate_qr(doc_id)
-    flash('تم إعادة توليد رمز QR بنجاح')
-    return redirect(url_for('document', doc_id=doc_id))
 
-@app.route('/regen-all-qr')
-@login_required
-def regen_all_qr():
-    qr_dir = 'static/qr'
-    for f in os.listdir(qr_dir):
-        if f.startswith('qr_') and f.endswith('.png'):
-            os.remove(os.path.join(qr_dir, f))
-    for doc in Document.query.all():
-        generate_qr(doc.id)
-    flash('تم إعادة توليد جميع رموز QR')
-    return redirect(url_for('dashboard'))
 
 @app.route('/edit/<doc_id>', methods=['GET', 'POST'])
 @login_required
@@ -228,6 +206,7 @@ def upload_files(doc_id):
                     file_db = File(document_id=doc.id, filename=filename, filepath=filepath)
                     db.session.add(file_db)
             db.session.commit()
+            generate_qr(doc_id)
             flash('تم رفع الملفات بنجاح')
             return redirect(url_for('document', doc_id=doc_id))
     return render_template('upload_files.html', doc=doc)
