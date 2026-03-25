@@ -25,11 +25,11 @@ pandas==2.3.3
 pillow==12.1.1
 pycparser==3.0
 pyparsing==3.3.2
-pypng==0.20220715.0
+
 python-dateutil==2.9.0.post0
 python-dotenv==1.0.0
 pytz==2025.2
-qrcode==7.4.2
+
 setuptools==82.0.1
 six==1.17.0
 SQLAlchemy==2.0.48

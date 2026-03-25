@@ -25,7 +25,7 @@ class Document(db.Model):
     subject = db.Column(db.String(500), nullable=False)
     notes = db.Column(db.Text)
     doc_type = db.Column(db.String(10), nullable=False)  # 'incoming' or 'outgoing'
-    qr_code = db.Column(db.String(128), unique=True)  # UUID for QR
+
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     files = db.relationship('File', backref='document', lazy=True, cascade='all, delete-orphan')

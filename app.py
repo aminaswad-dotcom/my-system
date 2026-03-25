@@ -11,8 +11,7 @@ from flask_login import current_user
 from config import Config
 import os
 from datetime import datetime, date
-from qrcode import QRCode
-from io import BytesIO
+
 import zipfile
 import shutil
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -49,23 +48,7 @@ class DocumentForm(FlaskForm):
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'pdf', 'jpg', 'jpeg', 'png', 'gif'}
 
-def generate_qr(doc_id):
-    qr_dir = 'static/qr'
-    os.makedirs(qr_dir, exist_ok=True)
-    filename = f'qr_{doc_id}.png'
-    filepath = os.path.join(qr_dir, filename)
-    doc = Document.query.options(joinedload(Document.files)).get(doc_id)
-    if not os.path.exists(filepath):
-        qr = QRCode(version=1, box_size=10, border=5)
-        qr_url = f"{app.config['BASE_URL']}/public/document/{doc_id}"
-        qr.add_data(qr_url)
-        qr.make(fit=True)
-        img = qr.make_image(fill_color="black", back_color="white")
-        img.save(filepath)
-    if doc:
-        doc.qr_code = filename
-        db.session.commit()
-    return filename
+
 
 # Routes
 @app.route('/login', methods=['GET', 'POST'])
@@ -149,17 +132,13 @@ def add_document():
 @app.route('/public/document/<doc_id>')
 def public_document(doc_id):
     doc = Document.query.options(joinedload(Document.files)).get_or_404(doc_id)
-    generate_qr(doc_id)
-    qr_path = url_for('static', filename=f'qr/qr_{doc_id}.png')
-    return render_template('document.html', doc=doc, qr_path=qr_path, is_public=True)
+    return render_template('document.html', doc=doc, is_public=True)
 
 @app.route('/document/<doc_id>')
 @login_required
 def document(doc_id):
     doc = Document.query.options(joinedload(Document.files)).get_or_404(doc_id)
-    generate_qr(doc_id)
-    qr_path = url_for('static', filename=f'qr/qr_{doc_id}.png')
-    return render_template('document.html', doc=doc, qr_path=qr_path, is_public=False)
+    return render_template('document.html', doc=doc, is_public=False)
 
 
 
@@ -206,7 +185,6 @@ def upload_files(doc_id):
                     file_db = File(document_id=doc.id, filename=filename, filepath=filepath)
                     db.session.add(file_db)
             db.session.commit()
-            generate_qr(doc_id)
             flash('تم رفع الملفات بنجاح')
             return redirect(url_for('document', doc_id=doc_id))
     return render_template('upload_files.html', doc=doc)
