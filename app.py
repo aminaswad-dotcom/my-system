@@ -73,7 +73,6 @@ def logout():
 @app.route('/')
 @login_required
 def dashboard():
-    page = request.args.get('page', 1, type=int)
     search = request.args.get('search', '')
     doc_type = request.args.get('type', '')
     start_date = request.args.get('start_date')
@@ -93,7 +92,7 @@ def dashboard():
     if end_date:
         query = query.filter(Document.date <= datetime.strptime(end_date, '%Y-%m-%d').date())
     
-    documents = query.order_by(Document.date.desc()).paginate(page=page, per_page=10, error_out=False)
+    documents = query.order_by(Document.date.desc()).all()
     return render_template('dashboard.html', documents=documents, search=search, doc_type=doc_type, start_date=start_date, end_date=end_date)
 
 @app.route('/add', methods=['GET', 'POST'])
