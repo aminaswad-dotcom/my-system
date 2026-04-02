@@ -1,6 +1,7 @@
-# TODO: Remove Pagination - Display All Documents
+# Fix Backups Functionality
 
-- [x] Step 1: Edit app.py - Remove pagination logic, fetch all documents
-- [x] Step 2: Edit templates/dashboard.html - Update rendering loop, remove pagination UI  
-- [x] Step 3: Test dashboard - Backend fetches all filtered docs, frontend renders full list in table w/ scroll, no pagination UI, actions preserved
-- [x] Step 4: Mark complete
+- [ ] Step 1: Create TODO.md with detailed steps (done)
+- [x] Step 2: Edit app.py - Fix backup() function: correct DB path to 'instance/database.db', improve uploads arcname, add error handling
+- [x] Step 3: Test backup - Run app, login, trigger /backup, verify new ZIP in backups/ contains DB + uploads
+- [x] Step 4: Verify ZIP - Extract and check database.db opens, uploads present
+- [x] Step 5: Update TODO.md progress, attempt_completion

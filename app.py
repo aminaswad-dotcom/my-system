@@ -210,21 +210,32 @@ def reports():
 @app.route('/backup')
 @login_required
 def backup():
-    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-    backup_name = f'backup_{timestamp}.zip'
-    backup_path = os.path.join(app.config['BACKUP_FOLDER'], backup_name)
+    try:
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        backup_name = f'backup_{timestamp}.zip'
+        backup_path = os.path.join(app.config['BACKUP_FOLDER'], backup_name)
+        
+        with zipfile.ZipFile(backup_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
+            # Add database (correct path)
+            db_path = 'instance/database.db'
+            if os.path.exists(db_path):
+                zipf.write(db_path, 'database.db')
+            else:
+                raise FileNotFoundError(f"Database not found: {db_path}")
+            
+            # Add uploads (fixed arcname)
+            upload_folder = app.config['UPLOAD_FOLDER']
+            if os.path.exists(upload_folder):
+                for root, dirs, files in os.walk(upload_folder):
+                    for file in files:
+                        file_path = os.path.join(root, file)
+                        arcname = os.path.relpath(file_path, '.')
+                        zipf.write(file_path, arcname)
+        
+        flash(f'تم إنشاء نسخة احتياطية: {backup_name}', 'success')
+    except Exception as e:
+        flash(f'خطأ في النسخ الاحتياطي: {str(e)}', 'error')
     
-    with zipfile.ZipFile(backup_path, 'w') as zipf:
-        # Add database
-        if os.path.exists('database.db'):
-            zipf.write('database.db')
-        # Add uploads
-        if os.path.exists(app.config['UPLOAD_FOLDER']):
-            for root, dirs, files in os.walk(app.config['UPLOAD_FOLDER']):
-                for file in files:
-                    zipf.write(os.path.join(root, file), os.path.relpath(os.path.join(root, file), os.path.join(app.config['UPLOAD_FOLDER'], '..')) )
-    
-    flash(f'تم إنشاء نسخة احتياطية: {backup_name}')
     return redirect(url_for('dashboard'))
 
 if __name__ == '__main__':
