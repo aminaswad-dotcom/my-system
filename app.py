@@ -275,6 +275,14 @@ def backup():
 # Create tables once on app startup (safe for prod)
 with app.app_context():
     db.create_all()
+    
+    # Create default admin user if not exists (for production empty DB)
+    if not User.query.filter_by(username='admin').first():
+        admin_user = User(username='admin')
+        admin_user.set_password('admin123')
+        db.session.add(admin_user)
+        db.session.commit()
+        app.logger.info("Created default admin user: admin/admin123")
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
