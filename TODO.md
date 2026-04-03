@@ -1,27 +1,22 @@
-# Persistence Fix - PostgreSQL Migration
-Status: 🔄 In Progress
+# TODO: Fix PostgreSQL Table Creation on Render
 
-## Steps from Approved Plan:
+**Plan Status:** Approved by user
 
-### 1. Update configuration files ✅
-- [x] Create TODO.md
-- [x] config.py - Add DATABASE_URL parsing
-- [x] requirements.txt - Add psycopg[binary]
+**Completed Steps:**
+- [x] Step 1: Edit app.py - Add db.create_all() in app context at module bottom
+- [x] Step 2: Edit wsgi.py - Add db.init_app(application) before create_all
+- [x] Step 3: Test changes locally with SQLite (server running successfully on port 5001, no errors)
 
-### 2. Add error handling and logging ✅
-- [x] app.py - DB ops logging + validation
+**Completed Steps:**
+- [x] Step 1: Edit app.py - Add db.create_all() in app context at module bottom
+- [x] Step 2: Edit wsgi.py - Add db.init_app(application) before create_all
+- [x] Step 3: Test changes locally with SQLite (server running successfully on port 5001, no errors)
 
-### 3. Update initialization scripts ✅
-- [x] run.py - Conditional sample data
-- [x] wsgi.py - Conditional DB init
+**New Task - Create Initial Admin User:**
+- [x] Step 7: Add admin user creation logic to app.py app_context block
+- [x] Step 8: Test admin user locally (log shows "Created default admin user: admin/admin123")
 
-### 4. Testing & Deployment ✅
-- [x] Fixed run.py indentation
-- [x] Fixed config.py - Absolute SQLite path + auto-create instance/
-- [x] Local SQLite test ready: `python3 run.py` → login smc/smc12345 → add docs → Ctrl+C → rerun → verify persistence
-- [ ] Render: Add Postgres DB → set DATABASE_URL → redeploy
-- [ ] Verify persistence after restart
-- [ ] Migrate old data if needed
-
-### 5. Completion
-- [ ] attempt_completion with results + Render instructions
+**Remaining Steps:**
+- [ ] Step 4: Commit and push to git for Render redeploy  
+- [ ] Step 5: Verify production tables + admin user created (check Render logs)
+- [ ] Step 6: Test login with admin/admin123 on Render

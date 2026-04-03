@@ -10,6 +10,8 @@ from config import Config
 # Initialize app context, folders, and DB
 application.app_context().push()
 Config.init_folders()
+db.init_app(application)
+
 with application.app_context():
     # Only create tables, no sample data in production
     db.create_all()
