@@ -11,5 +11,6 @@ from config import Config
 application.app_context().push()
 Config.init_folders()
 with application.app_context():
+    # Only create tables, no sample data in production
     db.create_all()
 

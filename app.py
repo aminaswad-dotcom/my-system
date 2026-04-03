@@ -16,9 +16,15 @@ import zipfile
 import shutil
 from apscheduler.schedulers.background import BackgroundScheduler
 import atexit
+import logging
 
 app = Flask(__name__)
 app.config.from_object(Config)
+
+# Logging setup
+logging.basicConfig(level=logging.INFO)
+app.logger.setLevel(logging.INFO)
+
 db.init_app(app)
 
 login_manager = LoginManager()
@@ -109,7 +115,14 @@ def add_document():
             doc_type=form.doc_type.data
         )
         db.session.add(doc)
-        db.session.commit()
+        try:
+            db.session.commit()
+            app.logger.info(f"Document {doc.id} created successfully")
+        except Exception as e:
+            db.session.rollback()
+            app.logger.error(f"Failed to save document {doc.doc_number}: {str(e)}")
+            flash('خطأ في حفظ الوثيقة، حاول مرة أخرى')
+            return render_template('add_document.html', form=form)
         
         # Handle files
         if 'files' in request.files:
@@ -153,7 +166,14 @@ def edit_document(doc_id):
         doc.subject = form.subject.data
         doc.notes = form.notes.data
         doc.doc_type = form.doc_type.data
-        db.session.commit()
+        try:
+            db.session.commit()
+            app.logger.info(f"Document {doc.id} updated successfully")
+        except Exception as e:
+            db.session.rollback()
+            app.logger.error(f"Failed to update document {doc.id}: {str(e)}")
+            flash('خطأ في تعديل الوثيقة')
+            return render_template('edit_document.html', form=form, doc=doc)
         flash('تم تعديل الوثيقة بنجاح')
         return redirect(url_for('dashboard'))
     return render_template('edit_document.html', form=form, doc=doc)
@@ -162,8 +182,15 @@ def edit_document(doc_id):
 @login_required
 def delete_document(doc_id):
     doc = Document.query.get_or_404(doc_id)
-    db.session.delete(doc)
-    db.session.commit()
+    try:
+        db.session.delete(doc)
+        db.session.commit()
+        app.logger.info(f"Document {doc_id} deleted")
+    except Exception as e:
+        db.session.rollback()
+        app.logger.error(f"Failed to delete document {doc_id}: {str(e)}")
+        flash('خطأ في الحذف')
+        return redirect(url_for('dashboard'))
     flash('تم حذف الوثيقة')
     return redirect(url_for('dashboard'))
 
@@ -183,7 +210,14 @@ def upload_files(doc_id):
                     file.save(filepath)
                     file_db = File(document_id=doc.id, filename=filename, filepath=filepath)
                     db.session.add(file_db)
-            db.session.commit()
+            try:
+                db.session.commit()
+                app.logger.info(f"Files uploaded to document {doc.id}")
+            except Exception as e:
+                db.session.rollback()
+                app.logger.error(f"Failed to save files for document {doc.id}: {str(e)}")
+                flash('خطأ في رفع الملفات')
+                return render_template('upload_files.html', doc=doc)
             flash('تم رفع الملفات بنجاح')
             return redirect(url_for('document', doc_id=doc_id))
     return render_template('upload_files.html', doc=doc)
